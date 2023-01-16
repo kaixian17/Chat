@@ -18,14 +18,8 @@ public class NetworkGameManager : NetworkManager
         NetworkManager.Singleton.StartClient();
     }
 
-    public void DisconnectHost()
+    public void Disconnect()
     {
         NetworkManager.Singleton.Shutdown();
     }
-
-    public void DisconnectChatClient(ulong obj)
-    {
-        NetworkManager.Singleton.DisconnectClient(obj);
-    }
-
 }

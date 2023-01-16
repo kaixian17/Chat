@@ -20,25 +20,29 @@ public class ChatManager : NetworkBehaviour
         SendChatMessageClientRPC(mensajeServer, userServer);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void UpdatePlayerListServerRPC(string user)
-    {
-        userList.Add(user);
-        for (int i = 0; i < userList.Count; i++)
-        {
-            listText = listText + userList[i] + "\n";
-            Debug.Log(userList.Count);
-        }
-
-        UpdatePlayerListClientRPC(listText);
-    }
-
     [ClientRpc]
     public void SendChatMessageClientRPC(string mensajeClient, string userClient)
     {
         chatText = chatText + userClient + ": " + mensajeClient + "\n";
         Chat.text = chatText;
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdatePlayerListServerRPC(string user)
+    {
+        listText = "";
+        userList.Add(user);
+        for (int i = 0; i < userList.Count; i++)
+        {      
+            listText += userList[i] + "\n";
+            Debug.Log(i);
+        }
+
+        SendChatMessageUserJoinedClientRPC(user);
+        UpdatePlayerListClientRPC(listText);
+    }
+
+
 
     [ClientRpc]
     public void UpdatePlayerListClientRPC(string list)
@@ -47,6 +51,37 @@ public class ChatManager : NetworkBehaviour
     }
 
 
+    [ServerRpc(RequireOwnership = false)]
+
+    public void RemoveUserFromListServerRPC(string user)
+    {
+        listText = "";
+        userList.Remove(user);
+        for (int i = 0; i < userList.Count; i++)
+        {
+            listText += userList[i] + "\n";
+            Debug.Log(i);
+        }
+
+        SendChatMessageUserLeftClientRPC(user);
+        UpdatePlayerListClientRPC(listText);
+    }
+
+    [ClientRpc]
+
+    public void SendChatMessageUserJoinedClientRPC(string userClient)
+    {
+        chatText = chatText + userClient + " has joined the lobby.\n";
+        Chat.text = chatText;
+    }
+
+    [ClientRpc]
+
+    public void SendChatMessageUserLeftClientRPC(string userClient)
+    {
+        chatText = chatText + userClient + " has left the lobby.\n";
+        Chat.text = chatText;
+    }
 
 }
 

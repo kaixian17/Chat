@@ -16,13 +16,23 @@ public class Chat : MonoBehaviour
     public TMP_InputField inputMensaje;
     public ChatManager chatmanager;
     public NetworkGameManager NGM;
-
     public GameObject menuInicial;
     public GameObject btnDesconectar;
     private void Start()
     {
         NGM.OnClientConnectedCallback += UpdatePlayerListClient;
+
         NGM.OnServerStarted += UpdatePlayerList;
+    }
+
+    private void OnDisable()
+    {
+        if (Unity.Netcode.NetworkManager.Singleton != null)
+        {
+            NGM.OnClientConnectedCallback -= UpdatePlayerListClient;
+
+            NGM.OnServerStarted -= UpdatePlayerList;
+        }
     }
     public void ReadNombreInput()
     {
@@ -50,8 +60,12 @@ public class Chat : MonoBehaviour
 
     public void UpdatePlayerListClient(ulong obj)
     {
-        chatmanager.UpdatePlayerListServerRPC(nombre);
-        userID = obj;
+        if (!NGM.IsHost)
+        {
+            chatmanager.UpdatePlayerListServerRPC(nombre);
+            userID = obj;
+        }
+
     }
 
 
@@ -73,17 +87,18 @@ public class Chat : MonoBehaviour
 
     public void Disconnect()
     {
-        if (userID == 0)
-        {
-            NGM.DisconnectHost();
-            Debug.Log("Server Apagado");
-        }
-        else
-        {
-            NGM.DisconnectChatClient(userID);
-            Debug.Log("Cliente desconectado");
-        }
-        UpdatePlayerList();
+        NGM.Disconnect();
+      
+        chatmanager.RemoveUserFromListServerRPC(nombre);
+        Debug.Log("Cliente desconectado");
+
+        menuInicial.SetActive(true);
+        btnDesconectar.SetActive(false);
+    }
+
+    public void RemoveUserFromList()
+    {
+        chatmanager.RemoveUserFromListServerRPC(nombre);
     }
 
 }
