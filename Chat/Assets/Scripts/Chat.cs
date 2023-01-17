@@ -65,7 +65,6 @@ public class Chat : MonoBehaviour
             chatmanager.UpdatePlayerListServerRPC(nombre);
             userID = obj;
         }
-
     }
 
 

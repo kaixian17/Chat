@@ -83,5 +83,9 @@ public class ChatManager : NetworkBehaviour
         Chat.text = chatText;
     }
 
+    public void Salir()
+    {
+        Application.Quit();
+    }
 }
 
